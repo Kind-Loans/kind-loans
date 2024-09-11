@@ -1,8 +1,8 @@
 [flake8]
 exclued =
-    migrations,
-    __pycache__,
-    manage.py,
-    settings.py
+  migrations,
+  __pycache__,
+  manage.py,
+  settings.py
 per-file-ignores =
-    settings.py: E501
+  settings.py: E501
