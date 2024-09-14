@@ -138,7 +138,7 @@ class PrivateUserApiTests(TestCase):
             'country': self.user.country,
             'city': self.user.city,
             'business_name': self.user.business_name,
-            'business_category': self.user.business_category,
+            'business_type': self.user.business_type,
             'interests': self.user.interests,
             'photoURL': self.user.photoURL,
             'story': self.user.story,

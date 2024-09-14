@@ -86,10 +86,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text="The name of the user's business, if applicable."
     )
-    business_category = models.CharField(
+    business_type = models.CharField(
         max_length=255,
         blank=True,
-        help_text="The category of the user's business, if applicable."
+        help_text="The user's business type."
     )
     interests = models.TextField(
         blank=True,
@@ -123,3 +123,65 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class LoanProfileStatus(models.IntegerChoices):
+    """Loan profile statuses."""
+    PENDING = 1, 'Pending'
+    FUNDED = 2, 'Funded'
+    REJECTED = 3, 'Rejected'
+
+
+class LoanProfile(models.Model):
+    """Loan profile model."""
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        help_text="The user associated with the loan profile."
+    )
+    photoURL = models.URLField(
+        help_text="The URL of the photo for the loan profile."
+    )
+    description = models.TextField(
+        help_text="The description of the loan profile."
+    )
+    business_type = models.IntegerField(
+        help_text="The type of business for the loan profile."
+    )
+    loan_duration_months = models.IntegerField(
+        help_text="The duration of the loan in months."
+    )
+    total_amount_required = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="The total amount required for the loan."
+    )
+    amount_lended_to_date = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="The amount lended to date for the loan."
+    )
+    deadline_to_receive_loan = models.DateField(
+        help_text="The deadline to receive the loan."
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="The date and time when the loan profile was created."
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="The date and time when the loan profile was last updated."
+    )
+    status = models.IntegerField(
+        choices=LoanProfileStatus.choices,
+        default=LoanProfileStatus.PENDING,
+        help_text="The status of the loan profile."
+    )
+
+    class Meta:
+        verbose_name = "Loan Profile"
+        verbose_name_plural = "Loan Profiles"
+        ordering = ['user']
+
+    def __str__(self):
+        return f"{self.user.name}'s loan profile"

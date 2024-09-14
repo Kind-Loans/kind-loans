@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             'country',
             'city',
             'business_name',
-            'business_category',
+            'business_type',
             'interests',
             'photoURL',
             'story'

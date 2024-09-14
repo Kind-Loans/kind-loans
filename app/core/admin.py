@@ -29,7 +29,7 @@ class UserAdmin(BaseUserAdmin):
                     'country',
                     'city',
                     'business_name',
-                    'business_category',
+                    'business_type',
                     'interests',
                     'photoURL',
                     'story',
@@ -53,7 +53,7 @@ class UserAdmin(BaseUserAdmin):
                 'country',
                 'city',
                 'business_name',
-                'business_category',
+                'business_type',
                 'interests',
                 'photoURL',
                 'story',
@@ -63,3 +63,4 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.LoanProfile)

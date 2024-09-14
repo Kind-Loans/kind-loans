@@ -4,6 +4,8 @@ Tests for models.
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from core import models
+from decimal import Decimal
 
 
 class ModelTests(TestCase):
@@ -45,3 +47,23 @@ class ModelTests(TestCase):
 
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_loan_profile(self):
+        """Test creating a new loan profile"""
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'testpass123'
+        )
+        loan_profile = models.LoanProfile.objects.create(
+            user=user,
+            photoURL='www.example.com/photo.jpg',
+            description='Test description',
+            business_type=1,
+            loan_duration_months=12,
+            total_amount_required=Decimal('500.00'),
+            amount_lended_to_date=Decimal('0.00'),
+            deadline_to_receive_loan='2021-12-31',
+            status=1
+        )
+
+        self.assertEqual(str(loan_profile), f'{user.name}\'s loan profile')
