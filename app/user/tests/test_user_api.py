@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
+from cities_light.models import Country, City
+from user.serializers import UserSerializer
 
 
 CREATE_USER_URL = reverse('user:create')
@@ -132,6 +134,14 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(res.data, {
             'name': self.user.name,
             'email': self.user.email,
+            'role': self.user.role,
+            'country': self.user.country,
+            'city': self.user.city,
+            'business_name': self.user.business_name,
+            'business_category': self.user.business_category,
+            'interests': self.user.interests,
+            'photoURL': self.user.photoURL,
+            'story': self.user.story,
         })
 
     def test_post_me_not_allowed(self):
@@ -150,3 +160,23 @@ class PrivateUserApiTests(TestCase):
         self.assertEqual(self.user.name, payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_city_must_belong_to_country(self):
+        """Test that city must belong to country."""
+        country = Country.objects.create(name='Country')
+        another_country = Country.objects.create(name='Another Country')
+        city = City.objects.create(name='City', country=country)
+        payload = {
+            'name': 'Test Name',
+            'email': 'test2@example.com',
+            'password': 'testpass123',
+            'city': city.id,
+            'country': another_country.id,
+        }
+
+        user_serializer = UserSerializer(data=payload)
+        self.assertFalse(user_serializer.is_valid())
+
+        res = self.client.post(CREATE_USER_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

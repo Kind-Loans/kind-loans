@@ -12,7 +12,7 @@ from core import models
 class UserAdmin(BaseUserAdmin):
     """Define then admin pages for users."""
     ordering = ['id']
-    list_display = ['email', 'name']
+    list_display = ['email', 'name', 'role', 'country', 'city']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (
@@ -20,6 +20,22 @@ class UserAdmin(BaseUserAdmin):
             {'fields': ('is_active', 'is_staff', 'is_superuser')}
         ),
         (_('Important dates'), {'fields': ('last_login',)}),
+        (
+            _('Personal info'),
+            {
+                'fields': (
+                    'name',
+                    'role',
+                    'country',
+                    'city',
+                    'business_name',
+                    'business_category',
+                    'interests',
+                    'photoURL',
+                    'story',
+                )
+            }
+        ),
     )
     readonly_fields = ['last_login']
     add_fieldsets = (
@@ -33,6 +49,14 @@ class UserAdmin(BaseUserAdmin):
                 'is_active',
                 'is_staff',
                 'is_superuser',
+                'role',
+                'country',
+                'city',
+                'business_name',
+                'business_category',
+                'interests',
+                'photoURL',
+                'story',
             )
         }),
     )

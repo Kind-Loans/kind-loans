@@ -16,8 +16,29 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'name')
+        fields = (
+            'email',
+            'password',
+            'name',
+            'role',
+            'country',
+            'city',
+            'business_name',
+            'business_category',
+            'interests',
+            'photoURL',
+            'story'
+            )
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+
+    def validate(self, data):
+        """Check if city belongs to country."""
+        if data.get('city') and data.get('country'):
+            if data['city'].country != data['country']:
+                raise serializers.ValidationError(
+                    _("City must belong to the selected country.")
+                )
+        return data
 
     def create(self, validated_data):
         """Create a new user with an encrypted password and return it."""
