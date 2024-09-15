@@ -134,7 +134,7 @@ class LoanProfileStatus(models.IntegerChoices):
 
 class LoanProfile(models.Model):
     """Loan profile model."""
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         help_text="The user associated with the loan profile."
@@ -145,7 +145,8 @@ class LoanProfile(models.Model):
     description = models.TextField(
         help_text="The description of the loan profile."
     )
-    business_type = models.IntegerField(
+    business_type = models.CharField(
+        max_length=255,
         help_text="The type of business for the loan profile."
     )
     loan_duration_months = models.IntegerField(

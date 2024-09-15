@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'user',
     'cities_light',
+    'loan_profile',
 ]
 
 MIDDLEWARE = [
