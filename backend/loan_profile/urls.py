@@ -13,5 +13,5 @@ router.register('loanprofile', views.LoanProfileViewSet)
 app_name = 'loan_profile'
 
 urlpatterns = [
-    path('admin/', include(router.urls)),
+    path('', include(router.urls)),
 ]

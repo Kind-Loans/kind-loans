@@ -1,14 +1,14 @@
 services:
-  app:
+  backend:
     user: root
     build:
-      context: .
+      context: ./backend
       args:
         - DEV=true
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app
+      - static:/static
     command: >
       sh -c "python manage.py wait_for_db &&
               python manage.py migrate &&
@@ -21,6 +21,24 @@ services:
     depends_on:
       - db
 
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app/build
+
+  nginx:
+    build:
+      context: ./nginx
+    volumes:
+      - static:/static
+      - ./frontend/dist:/var/www/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
   db:
     image: postgres:13-alpine
     volumes:
@@ -32,3 +50,5 @@ services:
 
 volumes:
   dev-db-data:
+  static:
+  frontend:
