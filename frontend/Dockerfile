@@ -5,4 +5,8 @@ COPY . .
 
 RUN npm install
 
-CMD ["npm", "run", "build"]
+ARG DEV
+RUN if [ $ENV = "false" ]; \
+    then npm run build; \
+    else npm run dev; \
+    fi

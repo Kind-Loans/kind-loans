@@ -25,11 +25,13 @@ services:
     build:
       context: ./frontend
     volumes:
-      - ./frontend:/app/build
+      - ./frontend:/app
 
   nginx:
     build:
       context: ./nginx
+      args:
+        - DEV=true
     volumes:
       - static:/static
       - ./frontend/dist:/var/www/frontend
