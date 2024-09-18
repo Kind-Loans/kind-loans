@@ -150,4 +150,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://0.0.0.0',
 ]
 
+ALLOWED_HOSTS = ['backend', 'localhost', '127.0.0.1']
+
 CORS_ALLOW_ALL_ORIGINS = True

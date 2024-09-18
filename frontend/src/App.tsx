@@ -15,7 +15,7 @@ function App() {
   const { data, error, isLoading } = useQuery<LoanProfile[]>({
     queryKey: ['loan-profiles'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:8000/api/loanprofile/')
+      const response = await fetch('/backend/api/loanprofile/')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -25,7 +25,7 @@ function App() {
 
   return (
     <>
-      <h1>Loan Profiles</h1>
+      <h1>Loan Profil</h1>
       <div>
         {isLoading ? (
           <div>Loading...</div>
