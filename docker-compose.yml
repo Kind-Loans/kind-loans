@@ -26,6 +26,7 @@ services:
       context: ./frontend
     volumes:
       - ./frontend:/app
+      - node_modules:/app/node_modules
 
   nginx:
     build:
@@ -54,3 +55,4 @@ volumes:
   dev-db-data:
   static:
   frontend:
+  node_modules:
