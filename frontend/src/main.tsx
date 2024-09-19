@@ -6,10 +6,22 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const font = "'Work Sans', sans-serif";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: font,
+  },
+});
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 );
