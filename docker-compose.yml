@@ -24,18 +24,20 @@ services:
   frontend:
     build:
       context: ./frontend
+    ports:
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - node_modules:/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   nginx:
     build:
       context: ./nginx
-      args:
-        - DEV=true
     volumes:
       - static:/static
-      - ./frontend/dist:/var/www/frontend
+      - ./frontend/dist:/var/www/frontend # for production
     ports:
       - "80:80"
     depends_on:

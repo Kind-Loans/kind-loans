@@ -23,7 +23,8 @@ function App() {
 
   return (
     <>
-      <h1>Loan Profilesss</h1>
+      <h1>Loan Profiles
+      </h1>
       <div>
         {isLoading ? (
           <div>Loading...</div>
