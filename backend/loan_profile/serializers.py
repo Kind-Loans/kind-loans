@@ -9,18 +9,20 @@ from core.models import LoanProfile
 class LoanProfileSerializer(serializers.ModelSerializer):
     """Serializer for loan profile objects."""
 
+    user_name = serializers.CharField(source='user.name', read_only=True)
     class Meta:
         model = LoanProfile
         fields = (
             'id',
             'user',
+            'user_name',
             'status',
             'photoURL',
             'business_type',
             'loan_duration_months',
             'total_amount_required',
         )
-        read_only_fields = ('id', 'user', 'status')
+        read_only_fields = ('id', 'user', 'status', 'user_name')
 
 
 class LoanProfileDetailSerializer(LoanProfileSerializer):

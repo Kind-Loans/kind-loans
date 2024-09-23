@@ -11,32 +11,33 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import AppWrapper from "./components/AppWrapper";
 
 const queryClient = new QueryClient();
 
 const theme = createTheme({
-  // palette: {
-  //   primary: {
-  //     main: "#1976d2",
-  //   },
-  //   secondary: {
-  //     main: "#dc004e",
-  //   },
-  // },
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#e1f5fe",
+    },
+  },
 });
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <AppWrapper children={<Home />} title="My Loan Profiles" />,
   },
   {
     path: "/requests",
-    element: <Requests />,
+    element: <AppWrapper children={<Requests />} title="Loan Requests" />,
   },
   {
     path: "/create-request",
-    element: <CreateRequest />,
+    element: <AppWrapper children={<CreateRequest />} title="Create Loan Request" />,
   },
 ]);
 
