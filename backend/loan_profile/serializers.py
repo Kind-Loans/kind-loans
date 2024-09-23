@@ -28,11 +28,14 @@ class LoanProfileSerializer(serializers.ModelSerializer):
 class LoanProfileDetailSerializer(LoanProfileSerializer):
     """Serializer for loan profile detail objects."""
 
+    user_name = serializers.CharField(source='user.name', read_only=True)
+
     class Meta:
         model = LoanProfile
         fields = LoanProfileSerializer.Meta.fields + (
             'description',
             'amount_lended_to_date',
             'deadline_to_receive_loan',
+            'user_name',
         )
-        read_only_fields = ('id', 'user', 'status')
+        read_only_fields = ('id', 'user', 'status', 'user_name')
