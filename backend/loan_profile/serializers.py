@@ -10,6 +10,7 @@ class LoanProfileSerializer(serializers.ModelSerializer):
     """Serializer for loan profile objects."""
 
     user_name = serializers.CharField(source='user.name', read_only=True)
+
     class Meta:
         model = LoanProfile
         fields = (
