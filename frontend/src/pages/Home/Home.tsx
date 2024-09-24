@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 
 interface LoanProfile {
   id: number;
+  title: string;
+  description: string;
+  user_name: string;
   business_type: string;
 }
 function Home() {
@@ -21,11 +24,16 @@ function Home() {
   ) : error ? (
     <p>Error: {error.message}</p>
   ) : (
-    <ul>
+    <div>
       {data?.map((loanProfile) => (
-        <li key={loanProfile.id}>{loanProfile.business_type}</li>
+        <div key={loanProfile.id}>
+          <h2>{loanProfile.title}</h2>
+          <p>{loanProfile.description}</p>
+          <p>{loanProfile.user_name}</p>
+          <p>{loanProfile.business_type}</p>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
 
