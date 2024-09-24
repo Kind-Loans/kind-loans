@@ -34,6 +34,7 @@ def create_loan_profile(user, **params):
     """
     defaults = {
         'photoURL': 'www.example.com/photo.jpg',
+        'title': 'Test title',
         'description': 'Test description',
         'business_type': 'Food',
         'loan_duration_months': 12,
@@ -108,6 +109,7 @@ class PrivateLoanProfileApiTests(TestCase):
         """Test creating a new loan profile."""
         payload = {
             'photoURL': 'https://www.example.com/photo.jpg',
+            'title': 'Test title',
             'description': 'Test description',
             'business_type': 'Food',
             'loan_duration_months': 12,

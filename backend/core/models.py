@@ -142,6 +142,10 @@ class LoanProfile(models.Model):
     photoURL = models.URLField(
         help_text="The URL of the photo for the loan profile."
     )
+    title = models.CharField(
+        max_length=255,
+        help_text="The title of the loan profile."
+    )
     description = models.TextField(
         help_text="The description of the loan profile."
     )

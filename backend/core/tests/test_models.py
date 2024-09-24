@@ -57,6 +57,7 @@ class ModelTests(TestCase):
         loan_profile = models.LoanProfile.objects.create(
             user=user,
             photoURL='www.example.com/photo.jpg',
+            title='Test title',
             description='Test description',
             business_type=1,
             loan_duration_months=12,

@@ -17,6 +17,7 @@ class LoanProfileSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'user_name',
+            'title',
             'status',
             'photoURL',
             'business_type',
