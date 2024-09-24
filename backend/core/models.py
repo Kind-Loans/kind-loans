@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin
 )
+from django.utils import timezone
 from cities_light.models import Country, City
 
 
@@ -128,7 +129,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class LoanProfileStatus(models.IntegerChoices):
     """Loan profile statuses."""
     PENDING = 1, 'Pending'
-    FUNDED = 2, 'Funded'
+    APPROVED = 2, 'Approved'
     REJECTED = 3, 'Rejected'
 
 
@@ -154,7 +155,8 @@ class LoanProfile(models.Model):
         help_text="The type of business for the loan profile."
     )
     loan_duration_months = models.IntegerField(
-        help_text="The duration of the loan in months."
+        help_text="The duration of the loan in months.",
+        default=12
     )
     total_amount_required = models.DecimalField(
         max_digits=10,
@@ -164,10 +166,12 @@ class LoanProfile(models.Model):
     amount_lended_to_date = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text="The amount lended to date for the loan."
+        help_text="The amount lended to date for the loan.",
+        default=0.00
     )
     deadline_to_receive_loan = models.DateField(
-        help_text="The deadline to receive the loan."
+        help_text="The deadline to receive the loan.",
+        default=timezone.now() + timezone.timedelta(days=365)
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
