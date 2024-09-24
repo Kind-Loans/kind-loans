@@ -12,7 +12,7 @@ export default function AppWrapper({
   return (
     <>
       <Header sectionTitle={title} />
-      <Container maxWidth="lg" sx={{ minHeight: "calc(100dvh - 120px)" }}>
+      <Container maxWidth="lg" sx={{ minHeight: "calc(100dvh - 120px)", py: 2, mb: "56px" }}>
         {children}
       </Container>
       <BottomNavBar />

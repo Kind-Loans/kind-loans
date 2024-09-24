@@ -1,12 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { Box } from "@mui/material";
+import LoanProfileCard from "../../components/LoanProfileCard";
+import LoanProfile from "../../types/LoanProfile";
 
-interface LoanProfile {
-  id: number;
-  title: string;
-  description: string;
-  user_name: string;
-  business_type: string;
-}
+
 function Requests() {
   const { data, error, isLoading } = useQuery<LoanProfile[]>({
     queryKey: ["loan-profiles"],
@@ -24,16 +21,11 @@ function Requests() {
   ) : error ? (
     <p>Error: {error.message}</p>
   ) : (
-    <div>
+    <Box sx={{ display: "flex", gap: 2, flexDirection: "column" }}>
       {data?.map((loanProfile) => (
-        <div key={loanProfile.id}>
-          <h2>{loanProfile.title}</h2>
-          <p>{loanProfile.description}</p>
-          <p>{loanProfile.user_name}</p>
-          <p>{loanProfile.business_type}</p>
-        </div>
+        <LoanProfileCard key={loanProfile.id} loanProfile={loanProfile} />
       ))}
-    </div>
+    </Box>
   );
 }
 
