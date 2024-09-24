@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/backend
+      - ./backend:/app
     command: >
       sh -c "python manage.py wait_for_db &&
               python manage.py migrate &&
@@ -35,6 +35,7 @@ services:
   nginx:
     build:
       context: ./nginx
+    platform: linux/amd64
     volumes:
       - backend:/backend
       - ./frontend/dist:/var/www/frontend # for production
@@ -47,14 +48,15 @@ services:
   db:
     image: postgres:13-alpine
     volumes:
-      - dev-db-data:/var/lib/postgresql/data
+      # - dev-db-data:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
 
 volumes:
-  dev-db-data:
+  # dev-db-data:
   backend:
   frontend:
   node_modules:

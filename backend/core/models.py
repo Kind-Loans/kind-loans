@@ -138,6 +138,7 @@ class LoanProfile(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name="loan_profiles",
         help_text="The user associated with the loan profile."
     )
     photoURL = models.URLField(
@@ -163,12 +164,6 @@ class LoanProfile(models.Model):
         decimal_places=2,
         help_text="The total amount required for the loan."
     )
-    amount_lended_to_date = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        help_text="The amount lended to date for the loan.",
-        default=0.00
-    )
     deadline_to_receive_loan = models.DateField(
         help_text="The deadline to receive the loan.",
         default=timezone.now() + timezone.timedelta(days=365)
@@ -187,6 +182,11 @@ class LoanProfile(models.Model):
         help_text="The status of the loan profile."
     )
 
+    @property
+    def amount_lended_to_date(self):
+        transaction_total = self.transactions.filter(status=TransactionStatus.COMPLETED).aggregate(models.Sum("amount"))
+        return transaction_total["amount__sum"] or 0
+
     class Meta:
         verbose_name = "Loan Profile"
         verbose_name_plural = "Loan Profiles"
@@ -194,3 +194,77 @@ class LoanProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.name}'s loan profile"
+
+
+class TransactionStatus(models.IntegerChoices):
+    PENDING = 1, 'Pending'            # Payment initiated but not yet processed
+    COMPLETED = 2, 'Completed'        # Payment successfully completed
+    FAILED = 3, 'Failed'              # Payment attempt failed
+    REFUNDED = 4, 'Refunded'          # Payment was refunded
+    CANCELED = 5, 'Canceled'          # Payment was canceled by the user or system
+    ON_HOLD = 6, 'On Hold'            # Payment is temporarily on hold
+    CHARGEBACK = 7, 'Chargeback'      # Disputed payment, money reversed by the provider
+
+
+class PaymentMethod(models.IntegerChoices):
+    """Payment Method choices."""
+    CREDIT_CARD = 1, 'Credit Card'
+    DEBIT_CARD = 2, 'Debit Card'
+    PAYPAL = 3, 'PayPal'
+    APPLE_PAY = 4, 'Apple Pay'
+    GOOGLE_PAY = 5, 'Google Pay'
+    BANK_TRANSFER = 6, 'Bank Transfer'
+    CASH = 7, 'Cash'
+    CRYPTOCURRENCY = 9, 'Cryptocurrency'
+
+
+# TODO:
+# + currency
+# + on-delete: transactions cannot be deleted for audit reasons
+#   instead prevent delete on user object or loanprofile, resort to 
+#   hiding/making inactive
+class Transaction(models.Model):
+    """Transaction model."""
+    loan_profile = models.ForeignKey(
+        LoanProfile, 
+        related_name="transactions",
+        on_delete=models.PROTECT
+    )
+    user = models.ForeignKey(
+        User, 
+        related_name="transactions",
+        on_delete=models.PROTECT
+    )
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="The amount for the transaction."
+    )
+    transaction_date = models.DateTimeField(
+        auto_now=True,
+        help_text="The date and time when the transaction occurred."
+    )
+    payment_method = models.IntegerField(
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.PAYPAL,
+        help_text="The method of payment for the transaction."
+    )
+    status = models.IntegerField(
+        choices=TransactionStatus.choices, 
+        default=TransactionStatus.PENDING,
+        help_text="The status of the transaction."
+    )
+
+    class Meta:
+        verbose_name = "Transaction"
+        verbose_name_plural = "Transactions"
+        ordering = ['-transaction_date']
+
+    def __str__(self):
+        return f"{self.user.name} ----({self.amount})----> {self.loan_profile}"
+
+    def save(self, *args, **kwargs):
+        if self.amount < 0:
+            raise ValueError("Transaction amount cannot be negative.")
+        super().save(*args, **kwargs)
+

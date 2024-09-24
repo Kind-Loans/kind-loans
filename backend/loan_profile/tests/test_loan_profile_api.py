@@ -39,7 +39,6 @@ def create_loan_profile(user, **params):
         'business_type': 'Food',
         'loan_duration_months': 12,
         'total_amount_required': Decimal('500.00'),
-        'amount_lended_to_date': Decimal('0.00'),
         'deadline_to_receive_loan': '2022-01-01',
         'status': LoanProfileStatus.PENDING,
     }
@@ -114,7 +113,6 @@ class PrivateLoanProfileApiTests(TestCase):
             'business_type': 'Food',
             'loan_duration_months': 12,
             'total_amount_required': Decimal('500.00'),
-            'amount_lended_to_date': Decimal('0.00'),
             'deadline_to_receive_loan': date.today(),
             'status': LoanProfileStatus.PENDING,
         }
