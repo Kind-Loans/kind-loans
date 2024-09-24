@@ -4,7 +4,6 @@ Tests for models.
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
 from core import models
 from decimal import Decimal
 
@@ -68,40 +67,46 @@ class ModelTests(TestCase):
         )
         self.assertEqual(str(loan_profile), f'{user.name}\'s loan profile')
 
- 
+
 class TransactionModelTests(TestCase):
     def setUp(self):
         password = 'testpass123'
 
-        self.user_with_two_loan_profiles = get_user_model().objects.create_user(
-            email="test@example.com",
-            password=password
-        ) 
-
-        self.loan_profile_with_transactions = models.LoanProfile.objects.create(
-            user=self.user_with_two_loan_profiles,
-            photoURL='www.example.com/photo.jpg',
-            description='loan profile 1',
-            business_type=1,
-            loan_duration_months=12,
-            total_amount_required=Decimal('500.00'),
-            deadline_to_receive_loan='2021-12-31',
-            status=1
+        self.user_with_two_loan_profiles = (
+                get_user_model().objects.create_user(
+                    email="test@example.com",
+                    password=password
+                )
         )
-        self.loan_profile_without_transactions = models.LoanProfile.objects.create(
-            user=self.user_with_two_loan_profiles,
-            photoURL='www.example.com/photo.jpg',
-            description='loan profile 2',
-            business_type=2,
-            loan_duration_months=12,
-            total_amount_required=Decimal('500.00'),
-            deadline_to_receive_loan='2021-12-31',
-            status=1
-        )        
+
+        self.loan_profile_with_transactions = (
+            models.LoanProfile.objects.create(
+                user=self.user_with_two_loan_profiles,
+                photoURL='www.example.com/photo.jpg',
+                description='loan profile 1',
+                business_type=1,
+                loan_duration_months=12,
+                total_amount_required=Decimal('500.00'),
+                deadline_to_receive_loan='2021-12-31',
+                status=1
+            )
+        )
+        self.loan_profile_without_transactions = (
+            models.LoanProfile.objects.create(
+                user=self.user_with_two_loan_profiles,
+                photoURL='www.example.com/photo.jpg',
+                description='loan profile 2',
+                business_type=2,
+                loan_duration_months=12,
+                total_amount_required=Decimal('500.00'),
+                deadline_to_receive_loan='2021-12-31',
+                status=1
+            )
+        )
         self.lender = get_user_model().objects.create_user(
             email="lender@example.com",
             password=password
-        ) 
+        )
 
     def test_amount_lended_to_date(self):
         """Test amount lended to loan is based on completed transactions"""
@@ -124,7 +129,8 @@ class TransactionModelTests(TestCase):
             user=self.lender,
             amount=100,
             payment_method=models.PaymentMethod.PAYPAL,
-            status=models.TransactionStatus.PENDING, # pending transactions excluded
+            status=models.TransactionStatus.PENDING,
+            # pending transactions excluded
         )
 
         self.assertEqual(
@@ -135,4 +141,3 @@ class TransactionModelTests(TestCase):
             self.loan_profile_with_transactions.amount_lended_to_date,
             200
         )
-

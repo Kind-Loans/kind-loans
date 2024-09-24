@@ -184,7 +184,11 @@ class LoanProfile(models.Model):
 
     @property
     def amount_lended_to_date(self):
-        transaction_total = self.transactions.filter(status=TransactionStatus.COMPLETED).aggregate(models.Sum("amount"))
+        transaction_total = (
+            self.transactions
+            .filter(status=TransactionStatus.COMPLETED)
+            .aggregate(models.Sum("amount"))
+        )
         return transaction_total["amount__sum"] or 0
 
     class Meta:
@@ -197,13 +201,13 @@ class LoanProfile(models.Model):
 
 
 class TransactionStatus(models.IntegerChoices):
-    PENDING = 1, 'Pending'            # Payment initiated but not yet processed
-    COMPLETED = 2, 'Completed'        # Payment successfully completed
-    FAILED = 3, 'Failed'              # Payment attempt failed
-    REFUNDED = 4, 'Refunded'          # Payment was refunded
-    CANCELED = 5, 'Canceled'          # Payment was canceled by the user or system
-    ON_HOLD = 6, 'On Hold'            # Payment is temporarily on hold
-    CHARGEBACK = 7, 'Chargeback'      # Disputed payment, money reversed by the provider
+    PENDING = 1, 'Pending'        # Payment initiated but not yet processed
+    COMPLETED = 2, 'Completed'    # Payment successfully completed
+    FAILED = 3, 'Failed'          # Payment attempt failed
+    REFUNDED = 4, 'Refunded'      # Payment was refunded
+    CANCELED = 5, 'Canceled'      # Payment was canceled by the user or system
+    ON_HOLD = 6, 'On Hold'        # Payment is temporarily on hold
+    CHARGEBACK = 7, 'Chargeback'  # Disputed payment
 
 
 class PaymentMethod(models.IntegerChoices):
@@ -221,17 +225,17 @@ class PaymentMethod(models.IntegerChoices):
 # TODO:
 # + currency
 # + on-delete: transactions cannot be deleted for audit reasons
-#   instead prevent delete on user object or loanprofile, resort to 
+#   instead prevent delete on user object or loanprofile, resort to
 #   hiding/making inactive
 class Transaction(models.Model):
     """Transaction model."""
     loan_profile = models.ForeignKey(
-        LoanProfile, 
+        LoanProfile,
         related_name="transactions",
         on_delete=models.PROTECT
     )
     user = models.ForeignKey(
-        User, 
+        User,
         related_name="transactions",
         on_delete=models.PROTECT
     )
@@ -250,7 +254,7 @@ class Transaction(models.Model):
         help_text="The method of payment for the transaction."
     )
     status = models.IntegerField(
-        choices=TransactionStatus.choices, 
+        choices=TransactionStatus.choices,
         default=TransactionStatus.PENDING,
         help_text="The status of the transaction."
     )
@@ -267,4 +271,3 @@ class Transaction(models.Model):
         if self.amount < 0:
             raise ValueError("Transaction amount cannot be negative.")
         super().save(*args, **kwargs)
-

@@ -31,7 +31,9 @@ class Command(BaseCommand):
                 role=models.UserRole.LENDER,
             )
 
-        self.stdout.write(self.style.SUCCESS(f"{LENDER_COUNT} lender(s) created."))
+        self.stdout.write(
+            self.style.SUCCESS(f"{LENDER_COUNT} lender(s) created.")
+        )
 
         # fake-borrowers & loan-profiles
         for _ in range(BORROWER_COUNT):
@@ -42,8 +44,8 @@ class Command(BaseCommand):
                 name=name,
                 email=f"{first}.{last}@example.com",
                 password=fake.name(),
-            ) 
-            loan_profile = models.LoanProfile.objects.create(
+            )
+            models.LoanProfile.objects.create(
                 user=user,
                 photoURL=fake.image_url(width=640, height=480),
                 title=fake.company(),
@@ -61,8 +63,12 @@ class Command(BaseCommand):
                 ),
             )
 
-        self.stdout.write(self.style.SUCCESS(f"{BORROWER_COUNT} borrower(s) with loan profiles created."))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{BORROWER_COUNT} borrower(s) with loan profiles created."
+            )
+        )
 
-        self.stdout.write(self.style.SUCCESS("Successfully generated samples."))
-
-
+        self.stdout.write(
+            self.style.SUCCESS("Successfully generated samples.")
+        )
