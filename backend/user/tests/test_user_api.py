@@ -11,9 +11,9 @@ from cities_light.models import Country, City
 from user.serializers import UserSerializer
 
 
-CREATE_USER_URL = reverse('user:create')
-TOKEN_URL = reverse('user:token')
-ME_URL = reverse('user:me')
+CREATE_USER_URL = reverse("user:create")
+TOKEN_URL = reverse("user:token")
+ME_URL = reverse("user:me")
 
 
 def create_user(**params):
@@ -32,23 +32,23 @@ class PublicUserApiTests(TestCase):
     def test_create_user_success(self):
         """Test creating a user with a valid payload is successful."""
         payload = {
-            'email': 'test@example.com',
-            'password': 'testpass123',
-            'name': 'Test Name',
+            "email": "test@example.com",
+            "password": "testpass123",
+            "name": "Test Name",
         }
         res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        user = get_user_model().objects.get(email=payload['email'])
-        self.assertTrue(user.check_password(payload['password']))
-        self.assertNotIn('password', res.data)
+        user = get_user_model().objects.get(email=payload["email"])
+        self.assertTrue(user.check_password(payload["password"]))
+        self.assertNotIn("password", res.data)
 
     def test_user_with_email_exists_error(self):
         """Test creating a user that already exists fails."""
         payload = {
-            'email': 'test@example.com',
-            'password': 'testpass123',
-            'name': 'Test Name',
+            "email": "test@example.com",
+            "password": "testpass123",
+            "name": "Test Name",
         }
         create_user(**payload)
 
@@ -59,52 +59,52 @@ class PublicUserApiTests(TestCase):
     def test_password_too_short_error(self):
         """Test that the password must be more than 5 characters."""
         payload = {
-            'email': 'test@example.com',
-            'password': 'pw',
-            'name': 'Test Name',
+            "email": "test@example.com",
+            "password": "pw",
+            "name": "Test Name",
         }
         res = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        user_exists = get_user_model().objects.filter(
-            email=payload['email']
-        ).exists()
+        user_exists = (
+            get_user_model().objects.filter(email=payload["email"]).exists()
+        )
         self.assertFalse(user_exists)
 
     def test_create_token_for_user(self):
         """Test that a token is created for the user."""
         user_details = {
-            'name': 'Test Name',
-            'email': 'test@example.com',
-            'password': 'test-user-password123',
+            "name": "Test Name",
+            "email": "test@example.com",
+            "password": "test-user-password123",
         }
         create_user(**user_details)
 
         payload = {
-            'email': user_details['email'],
-            'password': user_details['password'],
+            "email": user_details["email"],
+            "password": user_details["password"],
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertIn('token', res.data)
+        self.assertIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_create_token_invalid_credentials(self):
         """Test that a token is not created for invalid credentials."""
-        create_user(email='test@example.com', password='goodpass')
+        create_user(email="test@example.com", password="goodpass")
 
-        payload = {'email': 'test@example.com', 'password': 'badpass'}
+        payload = {"email": "test@example.com", "password": "badpass"}
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('token', res.data)
+        self.assertNotIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_token_blank_password(self):
         """Test that a token is not created for blank password."""
-        payload = {'email': 'test@example.com', 'password': ''}
+        payload = {"email": "test@example.com", "password": ""}
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('token', res.data)
+        self.assertNotIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_retrieve_user_unauthorized(self):
@@ -131,18 +131,21 @@ class PrivateUserApiTests(TestCase):
         res = self.client.get(ME_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, {
-            'name': self.user.name,
-            'email': self.user.email,
-            'role': self.user.role,
-            'country': self.user.country,
-            'city': self.user.city,
-            'business_name': self.user.business_name,
-            'business_type': self.user.business_type,
-            'interests': self.user.interests,
-            'photoURL': self.user.photoURL,
-            'story': self.user.story,
-        })
+        self.assertEqual(
+            res.data,
+            {
+                "name": self.user.name,
+                "email": self.user.email,
+                "role": self.user.role,
+                "country": self.user.country,
+                "city": self.user.city,
+                "business_name": self.user.business_name,
+                "business_type": self.user.business_type,
+                "interests": self.user.interests,
+                "photoURL": self.user.photoURL,
+                "story": self.user.story,
+            },
+        )
 
     def test_post_me_not_allowed(self):
         """Test that POST is not allowed on the me URL."""
@@ -152,26 +155,26 @@ class PrivateUserApiTests(TestCase):
 
     def test_update_user_profile(self):
         """Test updating the user profile for authenticated user."""
-        payload = {'name': 'Updated Name', 'password': 'newpassword123'}
+        payload = {"name": "Updated Name", "password": "newpassword123"}
 
         res = self.client.patch(ME_URL, payload)
         self.user.refresh_from_db()
 
-        self.assertEqual(self.user.name, payload['name'])
-        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(self.user.name, payload["name"])
+        self.assertTrue(self.user.check_password(payload["password"]))
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_city_must_belong_to_country(self):
         """Test that city must belong to country."""
-        country = Country.objects.create(name='Country')
-        another_country = Country.objects.create(name='Another Country')
-        city = City.objects.create(name='City', country=country)
+        country = Country.objects.create(name="Country")
+        another_country = Country.objects.create(name="Another Country")
+        city = City.objects.create(name="City", country=country)
         payload = {
-            'name': 'Test Name',
-            'email': 'test2@example.com',
-            'password': 'testpass123',
-            'city': city.id,
-            'country': another_country.id,
+            "name": "Test Name",
+            "email": "test2@example.com",
+            "password": "testpass123",
+            "city": city.id,
+            "country": another_country.id,
         }
 
         user_serializer = UserSerializer(data=payload)

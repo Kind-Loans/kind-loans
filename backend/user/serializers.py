@@ -17,24 +17,24 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = (
-            'email',
-            'password',
-            'name',
-            'role',
-            'country',
-            'city',
-            'business_name',
-            'business_type',
-            'interests',
-            'photoURL',
-            'story'
-            )
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+            "email",
+            "password",
+            "name",
+            "role",
+            "country",
+            "city",
+            "business_name",
+            "business_type",
+            "interests",
+            "photoURL",
+            "story",
+        )
+        extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
     def validate(self, data):
         """Check if city belongs to country."""
-        if data.get('city') and data.get('country'):
-            if data['city'].country != data['country']:
+        if data.get("city") and data.get("country"):
+            if data["city"].country != data["country"]:
                 raise serializers.ValidationError(
                     _("City must belong to the selected country.")
                 )
@@ -46,7 +46,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update and return user."""
-        password = validated_data.pop('password', None)
+        password = validated_data.pop("password", None)
         user = super().update(instance, validated_data)
 
         if password:
@@ -58,25 +58,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AuthTokenSerializer(serializers.Serializer):
     """Serializer for the user authentication token."""
+
     email = serializers.CharField()
     password = serializers.CharField(
-        style={'input_type': 'password'},
-        trim_whitespace=False
+        style={"input_type": "password"}, trim_whitespace=False
     )
 
     def validate(self, attrs):
         """Validate and authenticate the user."""
-        email = attrs.get('email')
-        password = attrs.get('password')
+        email = attrs.get("email")
+        password = attrs.get("password")
 
         user = authenticate(
-            request=self.context.get('request'),
+            request=self.context.get("request"),
             username=email,
-            password=password
+            password=password,
         )
         if not user:
-            msg = _('Unable to authenticate with provided credentials.')
-            raise serializers.ValidationError(msg, code='authentication')
+            msg = _("Unable to authenticate with provided credentials.")
+            raise serializers.ValidationError(msg, code="authentication")
 
-        attrs['user'] = user
+        attrs["user"] = user
         return attrs

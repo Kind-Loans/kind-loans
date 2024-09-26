@@ -8,10 +8,10 @@ from loan_profile import views
 
 
 router = DefaultRouter()
-router.register('loanprofile', views.LoanProfileViewSet)
+router.register("loanprofile", views.LoanProfileViewSet)
 
-app_name = 'loan_profile'
+app_name = "loan_profile"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

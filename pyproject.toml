@@ -1,2 +1,30 @@
 [tool.black]
 line-length = 79
+target-version = ["py39"]  # Use double quotes here
+exclude = '''
+/(
+    .git
+  | __pycache__
+  | env
+  | venv
+  | build
+  | dist
+  | migrations  # This will exclude any 'migrations' directory
+)/
+'''
+
+[tool.flake8]
+max-line-length = 79
+exclude = [
+    ".git",
+    "__pycache__",
+    "env",
+    "venv",
+    "migrations",
+    "build",
+    "dist"]
+ignore = [
+    "E203",  # Whitespace before ':'
+    "E266",  # Too many leading '#' for block comment
+    "E501",  # Line too long (handled by max-line-length)
+    "W503"]

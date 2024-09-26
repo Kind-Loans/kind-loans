@@ -53,13 +53,10 @@ class Command(BaseCommand):
                 business_type="",
                 loan_duration_months=fake.random_number(digits=2),
                 total_amount_required=fake.pydecimal(
-                    left_digits=4,
-                    right_digits=2,
-                    positive=True
+                    left_digits=4, right_digits=2, positive=True
                 ),
                 deadline_to_receive_loan=fake.date_between(
-                    start_date="today",
-                    end_date=LOAN_PERIOD
+                    start_date="today", end_date=LOAN_PERIOD
                 ),
             )
 
