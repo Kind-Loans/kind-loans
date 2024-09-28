@@ -66,6 +66,18 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+class LoanProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "total_amount_required",
+        "amount_lended_to_date",
+    )
+    readonly_fields = ("amount_lended_to_date",)
+
+    def amount_lended_to_date(self, obj):
+        return obj.amount_lended_to_date
+
+
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.LoanProfile)
+admin.site.register(models.LoanProfile, LoanProfileAdmin)
 admin.site.register(models.Transaction)

@@ -12,11 +12,21 @@ from core import models
 class Command(BaseCommand):
     help = "Generate fake data for User, LoanProfile, and Transaction Model."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--lender_count", type=int, help="The number of lenders"
+        )
+        parser.add_argument(
+            "--borrower_count",
+            type=int,
+            help="The number of borrowers with loan profiles",
+        )
+
     def handle(self, *args, **kwargs):
         fake = Faker()
 
-        LENDER_COUNT = 2
-        BORROWER_COUNT = 5
+        LENDER_COUNT = kwargs.get("lender_count", 2)
+        BORROWER_COUNT = kwargs.get("borrower_count", 5)
         LOAN_PERIOD = timedelta(days=500)
 
         # fake-lenders
@@ -63,6 +73,31 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"{BORROWER_COUNT} borrower(s) with loan profiles created."
+            )
+        )
+
+        random_lenders = models.User.objects.filter(role="lender").order_by(
+            "?"
+        )[:LENDER_COUNT]
+        random_loan_profiles = models.LoanProfile.objects.order_by("?")[
+            :BORROWER_COUNT
+        ]
+
+        for lender in random_lenders:
+            for loan_profile in random_loan_profiles:
+                for n in range(fake.random_number(digits=1)):
+                    models.Transaction.objects.create_transaction(
+                        lender=lender,
+                        borrower=loan_profile,
+                        amount=fake.pydecimal(
+                            left_digits=3, right_digits=2, positive=True
+                        ),
+                        status=models.TransactionStatus.COMPLETED,
+                    )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Created sample transactions between lenders and borrowers."
             )
         )
 

@@ -3,6 +3,7 @@ Database models.
 """
 
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -10,6 +11,8 @@ from django.contrib.auth.models import (
 )
 from django.utils import timezone
 from cities_light.models import Country, City
+
+from decimal import Decimal
 
 
 class UserManager(BaseUserManager):
@@ -179,8 +182,13 @@ class LoanProfile(models.Model):
     def amount_lended_to_date(self):
         transaction_total = self.transactions.filter(
             status=TransactionStatus.COMPLETED
-        ).aggregate(models.Sum("amount"))
-        return transaction_total["amount__sum"] or 0
+        ).aggregate(models.Sum("amount"))["amount__sum"]
+
+        return (
+            transaction_total.quantize(Decimal("0.00"))
+            if transaction_total
+            else 0
+        )
 
     class Meta:
         verbose_name = "Loan Profile"
@@ -189,6 +197,25 @@ class LoanProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.name}'s loan profile"
+
+
+class TransactionManager(models.Manager):
+    """Manager for transactions."""
+
+    def create_transaction(self, lender, borrower, amount, **extra_fields):
+        """Create, save, and return a new transaction."""
+        # user must be User that is lender
+        if lender.role is not UserRole.LENDER:
+            raise ValueError("Transaction must be initiated by lender.")
+        # TODO:
+        # borrower must be a loan-profile
+        # must be before the loan-profile cutoff
+        transaction = self.model(
+            user=lender, loan_profile=borrower, amount=amount, **extra_fields
+        )
+        transaction.save(using=self._db)
+
+        return transaction
 
 
 class TransactionStatus(models.IntegerChoices):
@@ -225,10 +252,16 @@ class Transaction(models.Model):
     """Transaction model."""
 
     loan_profile = models.ForeignKey(
-        LoanProfile, related_name="transactions", on_delete=models.PROTECT
+        LoanProfile,
+        related_name="transactions",
+        on_delete=models.PROTECT,
+        help_text="The borrower (loan profile) for the transaction.",
     )
     user = models.ForeignKey(
-        User, related_name="transactions", on_delete=models.PROTECT
+        User,
+        related_name="transactions",
+        on_delete=models.PROTECT,
+        help_text="The lender for the transaction.",
     )
     amount = models.DecimalField(
         max_digits=10,
@@ -250,6 +283,8 @@ class Transaction(models.Model):
         help_text="The status of the transaction.",
     )
 
+    objects = TransactionManager()
+
     class Meta:
         verbose_name = "Transaction"
         verbose_name_plural = "Transactions"
@@ -262,3 +297,9 @@ class Transaction(models.Model):
         if self.amount < 0:
             raise ValueError("Transaction amount cannot be negative.")
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Transaction cannot be deleted.")
+
+    def delete_queryset(self, qs, *args, **kwargs):
+        raise ValidationError("Bulk deletion is not allowed for Transactions.")

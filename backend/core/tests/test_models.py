@@ -4,6 +4,7 @@ Tests for models.
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+
 from core import models
 from decimal import Decimal
 
@@ -18,7 +19,6 @@ class ModelTests(TestCase):
         user = get_user_model().objects.create_user(
             email=email, password=password
         )
-
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
 
@@ -100,37 +100,95 @@ class TransactionModelTests(TestCase):
             )
         )
         self.lender = get_user_model().objects.create_user(
-            email="lender@example.com", password=password
+            email="lender@example.com",
+            password=password,
+            role=models.UserRole.LENDER,
+        )
+        self.non_lender = get_user_model().objects.create_user(
+            email="nonlender@example.com",
+            password=password,
+            role=models.UserRole.BORROWER,
         )
 
-    def test_amount_lended_to_date(self):
-        """Test amount lended to loan is based on completed transactions"""
-        models.Transaction.objects.create(
-            loan_profile=self.loan_profile_with_transactions,
-            user=self.lender,
-            amount=100,
-            payment_method=models.PaymentMethod.PAYPAL,
-            status=models.TransactionStatus.COMPLETED,
-        )
-        models.Transaction.objects.create(
-            loan_profile=self.loan_profile_with_transactions,
-            user=self.lender,
-            amount=100,
-            payment_method=models.PaymentMethod.PAYPAL,
-            status=models.TransactionStatus.COMPLETED,
-        )
-        models.Transaction.objects.create(
-            loan_profile=self.loan_profile_with_transactions,
-            user=self.lender,
-            amount=100,
-            payment_method=models.PaymentMethod.PAYPAL,
-            status=models.TransactionStatus.PENDING,
-            # pending transactions excluded
-        )
+    def test_non_lender_cannot_initiate_transaction(self):
+        """Test that a user that is not a lender cannot initiate transaction."""
+        with self.assertRaises(ValueError):
+            models.Transaction.objects.create_transaction(
+                lender=self.non_lender,
+                borrower=self.loan_profile_with_transactions,
+                amount=100,
+            )
 
+    def test_amount_lended_to_date_for_loan_profile_without_transactions_is_zero(
+        self,
+    ):
+        """
+        Test the amount lended to date for a loan profile without any transactions
+        is zero.
+        """
         self.assertEqual(
             self.loan_profile_without_transactions.amount_lended_to_date, 0
         )
+
+    def test_amount_lended_to_date_for_loan_profile_with_pending_transactions_is_zero(
+        self,
+    ):
+        """
+        Test amount lended to date for loan profile with pending transactions is zero.
+        """
+        models.Transaction.objects.create_transaction(
+            lender=self.lender,
+            borrower=self.loan_profile_with_transactions,
+            amount=100,
+            status=models.TransactionStatus.PENDING,
+        )
+
+        self.assertEqual(
+            self.loan_profile_with_transactions.amount_lended_to_date, 0
+        )
+
+    def test_amount_lended_to_date_for_loan_profile_with_incomplete_transactions_is_zero(
+        self,
+    ):
+        """
+        Test amount lended to date for loan profile with incomplete transactions is zero.
+        """
+        NONTRANSACTION_STATUSES = [
+            status
+            for status in list(models.TransactionStatus)
+            if status != models.TransactionStatus.COMPLETED
+        ]
+        for status in NONTRANSACTION_STATUSES:
+            models.Transaction.objects.create_transaction(
+                lender=self.lender,
+                borrower=self.loan_profile_with_transactions,
+                amount=100,
+                status=status,
+            )
+
+        self.assertEqual(
+            self.loan_profile_with_transactions.amount_lended_to_date, 0
+        )
+
+    def test_amount_lended_to_date_for_loan_profile_with_completed_transactions(
+        self,
+    ):
+        """
+        Test amount lended to date for loan profile with completed transactions.
+        """
+        models.Transaction.objects.create_transaction(
+            lender=self.lender,
+            borrower=self.loan_profile_with_transactions,
+            amount=100,
+            status=models.TransactionStatus.COMPLETED,
+        )
+        models.Transaction.objects.create_transaction(
+            lender=self.lender,
+            borrower=self.loan_profile_with_transactions,
+            amount=100,
+            status=models.TransactionStatus.COMPLETED,
+        )
+
         self.assertEqual(
             self.loan_profile_with_transactions.amount_lended_to_date, 200
         )
