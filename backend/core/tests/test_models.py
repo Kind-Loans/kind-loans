@@ -66,6 +66,12 @@ class ModelTests(TestCase):
 
 
 class TransactionModelTests(TestCase):
+    """
+    LP - loan profile
+    ALTD - amount lended to date
+    T - transaction
+    """
+
     def setUp(self):
         password = "testpass123"
 
@@ -110,8 +116,11 @@ class TransactionModelTests(TestCase):
             role=models.UserRole.BORROWER,
         )
 
-    def test_non_lender_cannot_initiate_transaction(self):
-        """Test that a user that is not a lender cannot initiate transaction."""
+    def test_nonlender_cannot_initiate_T(self):
+        """
+        Test that a user that is not a lender
+        cannot initiate transaction.
+        """
         with self.assertRaises(ValueError):
             models.Transaction.objects.create_transaction(
                 lender=self.non_lender,
@@ -119,22 +128,20 @@ class TransactionModelTests(TestCase):
                 amount=100,
             )
 
-    def test_amount_lended_to_date_for_loan_profile_without_transactions_is_zero(
-        self,
-    ):
+    def test_ALTD_for_LP_without_Ts_is_zero(self):
         """
-        Test the amount lended to date for a loan profile without any transactions
+        Test the amount lended to date for a
+        loan profile without any transactions
         is zero.
         """
         self.assertEqual(
             self.loan_profile_without_transactions.amount_lended_to_date, 0
         )
 
-    def test_amount_lended_to_date_for_loan_profile_with_pending_transactions_is_zero(
-        self,
-    ):
+    def test_ALTD_for_LP_with_pending_Ts_is_zero(self):
         """
-        Test amount lended to date for loan profile with pending transactions is zero.
+        Test amount lended to date for loan profile
+        with pending transactions is zero.
         """
         models.Transaction.objects.create_transaction(
             lender=self.lender,
@@ -147,11 +154,10 @@ class TransactionModelTests(TestCase):
             self.loan_profile_with_transactions.amount_lended_to_date, 0
         )
 
-    def test_amount_lended_to_date_for_loan_profile_with_incomplete_transactions_is_zero(
-        self,
-    ):
+    def test_ALTD_for_LP_with_incomplete_Ts_is_zero(self):
         """
-        Test amount lended to date for loan profile with incomplete transactions is zero.
+        Test amount lended to date for loan profile
+        with incomplete transactions is zero.
         """
         NONTRANSACTION_STATUSES = [
             status
@@ -170,11 +176,10 @@ class TransactionModelTests(TestCase):
             self.loan_profile_with_transactions.amount_lended_to_date, 0
         )
 
-    def test_amount_lended_to_date_for_loan_profile_with_completed_transactions(
-        self,
-    ):
+    def test_ALTD_for_LP_with_completed_Ts(self):
         """
-        Test amount lended to date for loan profile with completed transactions.
+        Test amount lended to date for loan profile
+        with completed transactions.
         """
         models.Transaction.objects.create_transaction(
             lender=self.lender,

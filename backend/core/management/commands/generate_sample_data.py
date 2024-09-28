@@ -7,17 +7,15 @@ from datetime import timedelta
 from core import models
 
 
-# TODO:
-# + fake data for transaction
 class Command(BaseCommand):
     help = "Generate fake data for User, LoanProfile, and Transaction Model."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--lender_count", type=int, help="The number of lenders"
+            "lender_count", type=int, help="The number of lenders"
         )
         parser.add_argument(
-            "--borrower_count",
+            "borrower_count",
             type=int,
             help="The number of borrowers with loan profiles",
         )
@@ -25,8 +23,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         fake = Faker()
 
-        LENDER_COUNT = kwargs.get("lender_count", 2)
-        BORROWER_COUNT = kwargs.get("borrower_count", 5)
+        LENDER_COUNT = kwargs["lender_count"]
+        BORROWER_COUNT = kwargs["borrower_count"]
         LOAN_PERIOD = timedelta(days=500)
 
         # fake-lenders
@@ -76,9 +74,9 @@ class Command(BaseCommand):
             )
         )
 
-        random_lenders = models.User.objects.filter(role="lender").order_by(
-            "?"
-        )[:LENDER_COUNT]
+        random_lenders = models.User.objects.filter(
+            role=models.UserRole.LENDER
+        ).order_by("?")[:LENDER_COUNT]
         random_loan_profiles = models.LoanProfile.objects.order_by("?")[
             :BORROWER_COUNT
         ]
@@ -97,7 +95,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Created sample transactions between lenders and borrowers."
+                "Created sample transactions between lenders and borrowers."
             )
         )
 

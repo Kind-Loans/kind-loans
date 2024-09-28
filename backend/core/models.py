@@ -205,7 +205,7 @@ class TransactionManager(models.Manager):
     def create_transaction(self, lender, borrower, amount, **extra_fields):
         """Create, save, and return a new transaction."""
         # user must be User that is lender
-        if lender.role is not UserRole.LENDER:
+        if lender.role != UserRole.LENDER:
             raise ValueError("Transaction must be initiated by lender.")
         # TODO:
         # borrower must be a loan-profile

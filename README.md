@@ -10,3 +10,4 @@
     - after approval
     - while gathering funds
     - after funds are gathered
+- backend: is loan duration related to loan-deadline?
