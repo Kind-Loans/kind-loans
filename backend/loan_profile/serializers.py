@@ -23,8 +23,15 @@ class LoanProfileSerializer(serializers.ModelSerializer):
             "business_type",
             "loan_duration_months",
             "total_amount_required",
+            "amount_lended_to_date",
         )
-        read_only_fields = ("id", "user", "status", "user_name")
+        read_only_fields = (
+            "id",
+            "user",
+            "status",
+            "user_name",
+            "amount_lended_to_date",
+        )
 
 
 class LoanProfileDetailSerializer(LoanProfileSerializer):
