@@ -11,56 +11,73 @@ from core import models
 
 class UserAdmin(BaseUserAdmin):
     """Define then admin pages for users."""
-    ordering = ['id']
-    list_display = ['email', 'name', 'role', 'country', 'city']
+
+    ordering = ["id"]
+    list_display = ["email", "name", "role", "country", "city"]
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
+        (None, {"fields": ("email", "password")}),
         (
-            _('Permissions'),
-            {'fields': ('is_active', 'is_staff', 'is_superuser')}
+            _("Permissions"),
+            {"fields": ("is_active", "is_staff", "is_superuser")},
         ),
-        (_('Important dates'), {'fields': ('last_login',)}),
+        (_("Important dates"), {"fields": ("last_login",)}),
         (
-            _('Personal info'),
+            _("Personal info"),
             {
-                'fields': (
-                    'name',
-                    'role',
-                    'country',
-                    'city',
-                    'business_name',
-                    'business_type',
-                    'interests',
-                    'photoURL',
-                    'story',
+                "fields": (
+                    "name",
+                    "role",
+                    "country",
+                    "city",
+                    "business_name",
+                    "business_type",
+                    "interests",
+                    "photoURL",
+                    "story",
                 )
-            }
+            },
         ),
     )
-    readonly_fields = ['last_login']
+    readonly_fields = ["last_login"]
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': (
-                'email',
-                'password1',
-                'password2',
-                'name',
-                'is_active',
-                'is_staff',
-                'is_superuser',
-                'role',
-                'country',
-                'city',
-                'business_name',
-                'business_type',
-                'interests',
-                'photoURL',
-                'story',
-            )
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "name",
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "role",
+                    "country",
+                    "city",
+                    "business_name",
+                    "business_type",
+                    "interests",
+                    "photoURL",
+                    "story",
+                ),
+            },
+        ),
     )
+
+
+class LoanProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "total_amount_required",
+        "amount_lended_to_date",
+    )
+    readonly_fields = ("amount_lended_to_date",)
+
+    def amount_lended_to_date(self, obj):
+        return obj.amount_lended_to_date
 
 
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.LoanProfile)
+admin.site.register(models.LoanProfile, LoanProfileAdmin)
+admin.site.register(models.Transaction)

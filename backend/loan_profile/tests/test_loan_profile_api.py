@@ -16,16 +16,16 @@ from core.models import LoanProfile, LoanProfileStatus
 
 from loan_profile.serializers import (
     LoanProfileSerializer,
-    LoanProfileDetailSerializer
+    LoanProfileDetailSerializer,
 )
 
 
-LOAN_PROFILES_URL = reverse('loan_profile:loanprofile-list')
+LOAN_PROFILES_URL = reverse("loan_profile:loanprofile-list")
 
 
 def detail_url(loan_profile_id):
     """Return loan profile detail URL."""
-    return reverse('loan_profile:loanprofile-detail', args=[loan_profile_id])
+    return reverse("loan_profile:loanprofile-detail", args=[loan_profile_id])
 
 
 def create_loan_profile(user, **params):
@@ -33,15 +33,14 @@ def create_loan_profile(user, **params):
     Create and return a new loan profile.
     """
     defaults = {
-        'photoURL': 'www.example.com/photo.jpg',
-        'title': 'Test title',
-        'description': 'Test description',
-        'business_type': 'Food',
-        'loan_duration_months': 12,
-        'total_amount_required': Decimal('500.00'),
-        'amount_lended_to_date': Decimal('0.00'),
-        'deadline_to_receive_loan': '2022-01-01',
-        'status': LoanProfileStatus.PENDING,
+        "photoURL": "www.example.com/photo.jpg",
+        "title": "Test title",
+        "description": "Test description",
+        "business_type": "Food",
+        "loan_duration_months": 12,
+        "total_amount_required": Decimal("500.00"),
+        "deadline_to_receive_loan": "2022-01-01",
+        "status": LoanProfileStatus.PENDING,
     }
     defaults.update(params)
 
@@ -59,11 +58,11 @@ class PublicLoanProfileApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='user@example.com', password='pass123')
+        self.user = create_user(email="user@example.com", password="pass123")
 
     def test_auth_not_required(self):
         """Test authentication is not required for list of loan profiles."""
-        res = self.client.get(reverse('loan_profile:loanprofile-list'))
+        res = self.client.get(reverse("loan_profile:loanprofile-list"))
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -82,7 +81,7 @@ class PublicLoanProfileApiTests(TestCase):
 
         res = self.client.get(LOAN_PROFILES_URL)
 
-        loan_profiles = LoanProfile.objects.all().order_by('-id')
+        loan_profiles = LoanProfile.objects.all().order_by("-id")
         serializer = LoanProfileSerializer(loan_profiles, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -93,7 +92,7 @@ class PrivateLoanProfileApiTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user(email='user@example.com', password='pass123')
+        self.user = create_user(email="user@example.com", password="pass123")
         self.client.force_authenticate(self.user)
 
     def test_get_loan_profile_detail(self):
@@ -108,20 +107,19 @@ class PrivateLoanProfileApiTests(TestCase):
     def test_create_loan_profile(self):
         """Test creating a new loan profile."""
         payload = {
-            'photoURL': 'https://www.example.com/photo.jpg',
-            'title': 'Test title',
-            'description': 'Test description',
-            'business_type': 'Food',
-            'loan_duration_months': 12,
-            'total_amount_required': Decimal('500.00'),
-            'amount_lended_to_date': Decimal('0.00'),
-            'deadline_to_receive_loan': date.today(),
-            'status': LoanProfileStatus.PENDING,
+            "photoURL": "https://www.example.com/photo.jpg",
+            "title": "Test title",
+            "description": "Test description",
+            "business_type": "Food",
+            "loan_duration_months": 12,
+            "total_amount_required": Decimal("500.00"),
+            "deadline_to_receive_loan": date.today(),
+            "status": LoanProfileStatus.PENDING,
         }
         res = self.client.post(LOAN_PROFILES_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        loan_profile = LoanProfile.objects.get(id=res.data['id'])
+        loan_profile = LoanProfile.objects.get(id=res.data["id"])
         for key in payload.keys():
             self.assertEqual(payload[key], getattr(loan_profile, key))
         self.assertEqual(loan_profile.user, self.user)
