@@ -303,3 +303,29 @@ class Transaction(models.Model):
 
     def delete_queryset(self, qs, *args, **kwargs):
         raise ValidationError("Bulk deletion is not allowed for Transactions.")
+
+
+class LoanUpdateType(models.IntegerChoices):
+    """Loan update types."""
+
+    PROGRESS = 1, "Progress Update"
+    MILESTONE = 2, "Milestone Update"
+    DELAY = 3, "Delay Update"
+    CANCELLATION = 4, "Cancellation Update"
+    COMPLETION = 5, "Completion Update"
+
+
+class LoanUpdate(models.Model):
+    loan_profile = models.ForeignKey(
+        LoanProfile, related_name="updates", on_delete=models.CASCADE
+    )
+    update_type = models.IntegerField(
+        choices=LoanUpdateType.choices,
+        default=LoanUpdateType.PROGRESS,
+        help_text="The type of update for the loan profile.",
+    )
+    update_detail = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Update on {self.timestamp} for {self.loan_profile.name}"
