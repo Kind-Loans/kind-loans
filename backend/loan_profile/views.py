@@ -5,7 +5,7 @@ Views for the loan_profile app.
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from core.models import LoanProfile
+from core.models import LoanProfile, LoanUpdate
 from loan_profile import serializers
 
 
@@ -37,3 +37,22 @@ class LoanProfileViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new loan profile."""
         serializer.save(user=self.request.user)
+
+
+class LoanUpdateViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.LoanUpdateSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    queryset = LoanUpdate.objects.none()
+
+    def get_queryset(self):
+        return LoanUpdate.objects.filter(
+            loan_profile__id=self.kwargs["loan_profile_pk"]
+        )
+
+    def perform_create(self, serializer):
+        loan_profile = LoanProfile.objects.get(
+            pk=self.kwargs["loan_profile_pk"]
+        )
+        serializer.save(loan_profile=loan_profile)

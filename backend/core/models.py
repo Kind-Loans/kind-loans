@@ -179,7 +179,7 @@ class LoanProfile(models.Model):
     )
 
     @property
-    def amount_lended_to_date(self):
+    def amount_lended_to_date(self) -> Decimal:
         transaction_total = self.transactions.filter(
             status=TransactionStatus.COMPLETED
         ).aggregate(models.Sum("amount"))["amount__sum"]
@@ -324,8 +324,13 @@ class LoanUpdate(models.Model):
         default=LoanUpdateType.PROGRESS,
         help_text="The type of update for the loan profile.",
     )
-    update_detail = models.TextField()
+    update_details = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Loan Updte"
+        verbose_name_plural = "Loan Updates"
+        ordering = ["-timestamp"]
+
     def __str__(self):
-        return f"Update on {self.timestamp} for {self.loan_profile.name}"
+        return f"Update on {self.timestamp} for {self.loan_profile.title}"
