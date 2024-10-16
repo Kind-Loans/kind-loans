@@ -4,7 +4,7 @@
 
 - Run `docker compose build` to build the docker images
 - Run `docker compose run --rm backend sh -c "python manage.py createsuperuser"` to create a superuser
-- Run `docker compose run --rm backend sh -c "python manage.py generate_sample_data 2 6` to generate sample data
+- Run `docker compose run --rm backend sh -c "python manage.py generate_sample_data 2 6"` to generate sample data
 - Run `docker compose up` to start the containers
 - Run `docker compose down` to stop the containers
 
@@ -38,3 +38,13 @@
     - while gathering funds
     - after funds are gathered
 - backend: is loan duration related to loan-deadline?
+
+- backend: loan-update who writes the updates
+
+- paypal-integration:
+    Paypal Developer has a few [APIs](https://developer.paypal.com/api/rest/current-resources/) that we can work with.
+
+    Both these examples need you to create a paypal dev account and transactions
+    can be mocked in the Paypal Sandbox:
+    - [backend integration example](https://www.youtube.com/watch?v=IXxEdhA7fig)
+    - [frontend integration example](https://www.youtube.com/watch?v=f7NWToOjtKI)
